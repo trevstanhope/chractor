@@ -12,12 +12,7 @@ iface eth0 inet dhcp
 # wlan0 is pc-pc wlan (in-situ debug)
 auto wlan0
 iface wlan0 inet static
-    #wireless-mode ad-hoc
-    #wireless-channel 4
-    #wireless-essid MR17
-    #wireless-key 1234567890
     hostapd /etc/hostapd/hostapd.conf
     address 192.168.1.2
     netmask 255.255.255.0
-    #gateway 192.168.1.1
     
