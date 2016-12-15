@@ -47,13 +47,17 @@ Sensor Harness, Bulgin 400 Series (8 position)
 
 Power Supply, Bulgin 400 Series (2 position)
 
-* https://www.digikey.com/product-detail/en/bulgin/PX0413-02P-PC/708-1072-ND/1625837
-* https://www.digikey.com/product-detail/en/bulgin/PX0410-02S-5560/708-1037-ND/1625802
+* Male Receptacle - https://www.digikey.com/product-detail/en/bulgin/PX0413-02P-PC/708-1072-ND/1625837
+* Female Plug - https://www.digikey.com/product-detail/en/bulgin/PX0410-02S-5560/708-1037-ND/1625802
+* Male Pins (20-24 AWG) - https://www.digikey.com/product-detail/en/bulgin/SA3350-1/708-1092-ND/1625857
+* Female Sockets (20-24 AWG) - https://www.digikey.com/product-detail/en/bulgin/SA3349-1/708-1091-ND/1625856
 
 Camera In-line, Bulgin 400 Series (4 position)
 
-* https://www.digikey.com/product-detail/en/bulgin/PX0410-04P-4550/708-1032-ND/1625797
-* https://www.digikey.com/product-detail/en/bulgin/PX0411-04S-4550/708-1053-ND/1625818
+* Male Plug - https://www.digikey.com/product-detail/en/bulgin/PX0410-04P-4550/708-1032-ND/1625797
+* Female Receptacle - https://www.digikey.com/product-detail/en/bulgin/PX0411-04S-4550/708-1053-ND/1625818
+* Male Pins (22-26 AWG) - https://www.digikey.com/product-detail/en/bulgin/SA3348/708-1089-ND/1625854
+* Female Sockets (22-26 AWG) - https://www.digikey.com/product-detail/en/bulgin/SA3347-1/708-1093-ND/1625858
 
 Camera Input, Bulgin Data Series (USB Mini)
 
