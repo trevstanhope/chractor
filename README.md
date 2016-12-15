@@ -70,7 +70,7 @@ Switched Power Out, TE Connectivity (4 position)
 
 * Female Receptacle (Panel-Mount) https://www.digikey.com/product-detail/en/te-connectivity-amp-connectors/206430-1/A1360-ND/19367
 * Male Plug (In-Line) - https://www.digikey.com/product-detail/en/te-connectivity-amp-connectors/206429-1/A1357-ND/19358
-* Male Pins (20-24 AWG)- https://www.digikey.com/product-detail/en/te-connectivity-amp-connectors/2-66102-5/A31989TR-ND/808381
+* Male Pins (20-24 AWG) - https://www.digikey.com/product-detail/en/te-connectivity-amp-connectors/2-66102-5/A31989TR-ND/808381
 
 Firewall Port, Amphenol Industrial Operations (18.0mm ~ 25.0mm, M32x1.5)
 
