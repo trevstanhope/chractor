@@ -1,5 +1,5 @@
 # Chractor
-Embedded system for Cherokee XJ traction, suspension and engine monitoring
+Embedded system for Cherokee XJ traction, suspension, and engine monitoring
 
 ## Installation
 Install Debian Linux 8.3.0 (headless) to the device.
