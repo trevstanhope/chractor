@@ -1,6 +1,17 @@
 # Chractor
 Embedded system for Cherokee XJ traction, suspension and engine monitoring
 
+## Installation
+Install Debian Linux 8.3.0 (headless) to the device.
+
+Afterwards, copy-paste the following in the device's terminal:
+
+    su
+    cd /root
+    git clone https://github.com/trevstanhope/chractor
+    cd chractor
+    sh install.sh
+
 ## Parts
 All components required for the device are listed below
 
@@ -17,6 +28,11 @@ DS18B20 temperature sensor
 Dorman #924-261 suspension sensor
 
 * http://www.ebay.com/itm/371313000320?_trksid=p2060353.m2749.l2649&ssPageName=STRK%3AMEBIDX%3AIT
+
+Adafruit 10-DOF IMU (LSM303DLHC, L3GD20, and BMP180)
+
+* https://www.adafruit.com/product/1604
+* https://github.com/adafruit/Adafruit_10DOF
 
 ### Enclosure
 Cinch ModICE LE
