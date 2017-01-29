@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+ssh://git@github.com/trevstanhope/chractor.git"
   },
-  "author": "Christian Droulers <tpstanhope@gmail.com>",
+  "author": "Trevor Stanhope <tpstanhope@gmail.com>",
   "license": "LGPL-3.0",
   "bugs": {
     "url": "https://github.com/trevstanhope/chractor/issues"

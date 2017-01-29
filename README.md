@@ -12,6 +12,11 @@ Afterwards, copy-paste the following in the device's terminal:
     cd chractor
     sh install.sh
 
+To rebuild the JS applet, from the app/js/ directory
+    
+    npm install -g typescript
+    tsc
+
 ## Parts
 All components required for the device are listed below
 

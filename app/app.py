@@ -120,20 +120,6 @@ class Gateway:
         self.debug = debug
 
         # JSON Data to be transmitted to the app over the web API
-        """self.json_data = {
-            "slip" : 0,
-            "gear" : 0,
-            "driveshaft_rpm" : 0,
-            "trans_temp" : 0,
-            "eng_temp" : 0,
-            "tc_temp" : 0,
-            "rad_temp" : 0,
-            "air_temp" : 0,
-            "throttle" : 0,
-            "battery" : 0,
-            "locked" : 0
-        }
-    """
         self.json_data = {
             "slip" : 0,
             "gear_ratio" : 0, # change
