@@ -23,7 +23,9 @@ usb_path = None
 
 ## Runtime
 if __name__ == '__main__':
-    
+    mounted = None
+    app_present = None
+
     # Try to load MTAB as table
     try:
         mtab_df = pd.read_table(mtab_path, sep=' ', header=None, names=('dev', 'path', 'permissions', '', '')) #!TODO don't know what the last two do
@@ -41,19 +43,17 @@ if __name__ == '__main__':
         mounted = os.path.isdir(usb_path)
     else:
         print "No USB found!"
-        exit(1)
+        mounted = None
 
     # Check if mount path is valid
     if mounted is not None:
         os.path.exists(usb_path)
         load_path = os.path.join(usb_path, "app")
         app_present = os.path.exists(load_path)
-    else:
         print "Unable to access USB mounting directory!"
-        exit(1)
 
     # Check if app directory is present on USB drive
-    if app_present:
+    if app_present is not None:
         print "Copying application data ..."
         try:
             #shutil.copytree(load_path, app_path)
@@ -62,4 +62,5 @@ if __name__ == '__main__':
             print "Unable to copy application!"
     else:
         print "No application found!"
-        exit(1)
+
+    import app.app
