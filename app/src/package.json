@@ -1,21 +1,21 @@
 {
-  "name": "mutrac",
+  "name": "chractor",
   "version": "1.0.0",
-  "description": "μtrac display",
+  "description": "chractor",
   "main": "server.js",
   "scripts": {
     "build": "tsc -p src"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/cdroulers/mutrac.git"
+    "url": "git+ssh://git@github.com/trevstanhope/chractor.git"
   },
-  "author": "Christian Droulers <droulers.christian@gmail.com>",
+  "author": "Christian Droulers <tpstanhope@gmail.com>",
   "license": "LGPL-3.0",
   "bugs": {
-    "url": "https://github.com/cdroulers/mutrac/issues"
+    "url": "https://github.com/trevstanhope/chractor/issues"
   },
-  "homepage": "https://github.com/cdroulers/mutrac#readme",
+  "homepage": "https://github.com/trevstanhope/chractor#readme",
   "dependencies": {},
   "devDependencies": {
     "typescript": "^1.8.10"
