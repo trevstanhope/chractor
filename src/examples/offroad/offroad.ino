@@ -61,6 +61,8 @@ unsigned char canbus_tx_buffer[CANBUS_LENGTH];  // Buffer to store the incoming 
 // Objects
 OneWire oneWire(TEMP_SENSOR_PIN);
 DallasTemperature ds18b20(&oneWire);
+RunningMedian temperature_history = RunningMedian(SAMPLES);
+RunningMedian moisture_history = RunningMedian(SAMPLES);
 
 /* --- Setup --- */
 void setup() {
@@ -108,14 +110,6 @@ void loop() {
       // Read from network
       StaticJsonBuffer<JSON_LENGTH> json_buffer;
       JsonObject& root = json_buffer.createObject();
-      if (msg == GET_RESPONSE) {
-        if (nt == MOISTURE_CONTROL_V1) {
-          root["moisture"] = canbus_rx_buffer[4];
-          root["irrigating"] = canbus_rx_buffer[5];
-          root["temperature"] = canbus_rx_buffer[6];
-          root["cooling"] = canbus_rx_buffer[7];
-        }
-      }
     }
   }
 
@@ -159,8 +153,8 @@ int getIntegerPart(float value) {
   return int_part;
 }
 
-float getMoistureContent(int pin) {
+float mapLinear(int pin, int m_a, int m_b, int v_a, int v_b) {
   int v = analogRead(pin);
-  float mc = (float)(v - volts_a) * (moisture_b - moisture_a) / (float)(volts_b - volts_a) + moisture_a;
+  float mc = (float)(v - v_a) * (m_b - m_a) / (float)(v_a - v_b) + m_a;
   return mc;
 }
