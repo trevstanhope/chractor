@@ -1,3 +1,6 @@
+
+
+
 /*
 Offroad kit for trail feedback
  
@@ -13,6 +16,12 @@ Offroad kit for trail feedback
  */
 
 /* --- Libraries --- */
+#include <Adafruit_LSM303.h>
+#include <Adafruit_L3GD20.h>
+#include <Adafruit_L3GD20_U.h>
+#include <Adafruit_BMP085_U.h>
+#include "Wire.h"
+#include "Adafruit_Sensor.h"
 #include "Canbus.h"
 #include "ArduinoJson.h"
 #include "RunningMedian.h"
@@ -20,17 +29,30 @@ Offroad kit for trail feedback
 #include "OneWire.h"
 #include "stdio.h"
 #include "DHT.h"
+#include "Adafruit_10DOF.h"
 
 /* --- Prototypes --- */
 int checksum(char *buf);
 
 /* --- Global --- */
-// IO Pins
-const unsigned int FAN_RELAY_PIN = 8;
-const unsigned int TEMP_SENSOR_PIN = 5;
-const unsigned int MOISTURE_DO_PIN = 6;
+// Digital IO Pins
+// Pins 0 - 1 Reserved for TTY
+const unsigned int DHT_PIN = 2;
+const unsigned int TEMP_ENGINE_PIN = 3;
+const unsigned int TEMP_TRANSFERCASE_PIN = 4;
+const unsigned int TEMP_INTAKE_PIN = 5;
 const unsigned int SENSOR_POWER_PIN = 7; 
-const unsigned int DHTPIN = 2; // what pin we're connected to
+const unsigned int FAN_RELAY_PIN = 8;
+const unsigned int LOCKER_RELAY_PIN = 9;
+// Pins 10 - 13 Reserved for CANBus SPI
+
+// Analog IO Pins
+const unsigned int ROLL_SENSOR_PIN = 0;
+const unsigned int PITCH_SENSOR_PIN = 1;
+//const unsigned int TEMP_SENSOR_PIN = 2;
+//const unsigned int TEMP_SENSOR_PIN = 3;
+//const unsigned int TEMP_SENSOR_PIN = 4;
+//const unsigned int TEMP_SENSOR_PIN = 5; 
 
 // Et cetera
 const unsigned int SAMPLES = 9;
@@ -42,16 +64,15 @@ const unsigned int JSON_LENGTH = 256;
 const unsigned int UPDATE_INTERVAL = 15000;
 const unsigned int DIGITS = 2;
 const unsigned int PRECISION = 2;
-const unsigned int DHTTYPE = DHT22;   // DHT 22  (AM2302)
+const unsigned int DHT_TYPE = DHT22; // DHT 22  (AM2302)
 
 /* --- Variables --- */
 int chksum;
-bool canbus_status = 0;
-bool pump_off = false;
-bool fan_off = false;
-bool cooling_required = false;
+boolean canbus_status = 0;
+boolean pump_off = false;
+boolean fan_off = false;
+boolean cooling_required = false;
 
- 
 int temperature_pv = 0;
 int moisture_pv = 0;
 float internal_humidity = 0;
@@ -64,9 +85,9 @@ unsigned char canbus_rx_buffer[CANBUS_LENGTH];  // Buffer to store the incoming 
 unsigned char canbus_tx_buffer[CANBUS_LENGTH];  // Buffer to store the incoming data
 
 // Objects
-OneWire oneWire(TEMP_SENSOR_PIN);
+OneWire oneWire(TEMP_ENGINE_PIN);
 DallasTemperature ds18b20(&oneWire);
-DHT dht(DHTPIN, DHTTYPE);
+DHT dht(DHT_PIN, DHT_TYPE);
 RunningMedian temperature_history = RunningMedian(SAMPLES);
 RunningMedian moisture_history = RunningMedian(SAMPLES);
 
@@ -86,8 +107,6 @@ void setup() {
 
   // Sensors
   ds18b20.begin();
-  pinMode(SENSOR_POWER_PIN, OUTPUT); // provide power to the moisture sensor
-  digitalWrite(SENSOR_POWER_PIN, HIGH);
 
   // Relays
   pinMode(FAN_RELAY_PIN, OUTPUT);
