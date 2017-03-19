@@ -20,18 +20,6 @@ if [ $ans = n -o $ans = N -o $ans = no -o $ans = No -o $ans = NO ]
         echo "Skipping..."
 fi
 
-# Update APT
-read -p "Configure APT [y/n] " ans
-if [ $ans = y -o $ans = Y -o $ans = yes -o $ans = Yes -o $ans = YES ]
-    then
-        cp $CONFIG_PATH/sources.list /etc/apt/
-        apt-get update
-fi
-if [ $ans = n -o $ans = N -o $ans = no -o $ans = No -o $ans = NO ]
-    then
-        echo "Skipping..."
-fi
-
 # GRUB
 read -p "Enable fast GRUB? [y/n] " ans
 if [ $ans = y -o $ans = Y -o $ans = yes -o $ans = Yes -o $ans = YES ]
@@ -46,16 +34,16 @@ if [ $ans = n -o $ans = N -o $ans = no -o $ans = No -o $ans = NO ]
 fi
 
 # Network Setup
-read -p "Setup default network? [y/n] " ans
+read -p "Setup AP network? [y/n] " ans
 if [ $ans = y -o $ans = Y -o $ans = yes -o $ans = Yes -o $ans = YES ]
     then
         echo "Reconfiguring Network Interfaces..."
         apt-get install dnsmasq hostapd -y -qq
-	apt-get install firmware-iwlwifi -y -qq
-	apt-get install wireless-tools -y -qq
+        apt-get install firmware-iwlwifi -y -qq
+        apt-get install wireless-tools -y -qq
         cp $CONFIG_PATH/interfaces /etc/network
-	cp $CONFIG_PATH/hostapd.conf /etc/hostapd/
-	cp $CONFIG_PATH/dnsmasq.conf /etc/
+        cp $CONFIG_PATH/hostapd.conf /etc/hostapd/
+        cp $CONFIG_PATH/dnsmasq.conf /etc/
 fi
 if [ $ans = n -o $ans = N -o $ans = no -o $ans = No -o $ans = NO ]
     then
@@ -67,6 +55,7 @@ read -p "Update APT dependencies? [y/n] " ans
 if [ $ans = y -o $ans = Y -o $ans = yes -o $ans = Yes -o $ans = YES ]
     then
         echo "Installing dependencies via mirror ..."
+        cp $CONFIG_PATH/sources.list /etc/apt/
         apt-get update
         apt-get upgrade -y -qq
         apt-get install unzip -y -qq
@@ -98,7 +87,7 @@ if [ $ans = y -o $ans = Y -o $ans = yes -o $ans = Yes -o $ans = YES ]
         apt-get install libdc1394-22-dev -y -qq
         apt-get install libxine2-dev -y -qq
         apt-get install libav-tools -y -qq
-	apt-get install libgstreamer0.10-dev -y -qq
+        apt-get install libgstreamer0.10-dev -y -qq
         apt-get install libgstreamer-plugins-base0.10-dev -y -qq
         apt-get install libv4l-dev -y -qq
         apt-get install python-numpy -y -qq
@@ -123,7 +112,7 @@ if [ $ans = y -o $ans = Y -o $ans = yes -o $ans = Yes -o $ans = YES ]
         apt-get install cython -y -qq
         apt-get install hostapd -y -qq
         apt-get install dnsmasq -y -qq
-	apt-get install curl -y -qq
+        apt-get install curl -y -qq
         apt-get install automake -y -qq
         apt-get install autoconf -y -qq
         apt-get install libtool -y -qq
@@ -147,36 +136,16 @@ if [ $ans = n -o $ans = N -o $ans = no -o $ans = No -o $ans = NO ]
         echo "Aborting..."
 fi
 
-# NodeJS
-# ADD SECTION FOR NODE
-
-# OpenCV
-read -p "Recompile OpenCV? [y/n] " ans
-if [ $ans = y -o $ans = Y -o $ans = yes -o $ans = Yes -o $ans = YES ]
-    then
-        echo "Installing OpenCV ..."
-        cd $BUILD_PATH
-        unzip -qq opencv-2.4.9.zip && cd opencv-2.4.9
-        mkdir release && cd release
-        cmake -D CMAKE_BUILD_TYPE=RELEASE CMAKE_INSTALL_PREFIX=/usr/local ..
-        make -j4
-        make install
-fi
-if [ $ans = n -o $ans = N -o $ans = no -o $ans = No -o $ans = NO ]
-    then
-        echo "Aborting..."
-fi
-
 # Create Daemon
 read -p "Start Daemon on boot? [y/n] " ans
 if [ $ans = y -o $ans = Y -o $ans = yes -o $ans = Yes -o $ans = YES ]
     then
         echo "Adding daemon to init.d"
-        cp $CONFIG_PATH/mutrac /etc/init.d/
+        cp $CONFIG_PATH/app /etc/init.d/
         chmod +x /etc/init.d/mutrac
-        chown root:root /etc/init.d/mutrac
-        update-rc.d mutrac defaults
-        update-rc.d mutrac enable
+        chown root:root /etc/init.d/app
+        update-rc.d app defaults
+        update-rc.d app enable
 fi
 if [$ans = n -o $ans = N -o $ans = no -o $ans = No -o $ans = NO ]
     then

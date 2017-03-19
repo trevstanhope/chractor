@@ -17,6 +17,13 @@ To rebuild the JS applet, from the app/js/ directory
     npm install -g typescript
     tsc
 
+## Overview
+At boot, the device will initialize an AP-mode wireless network. Afterwards, bootloader.py will be executed as a daemon process. If it detects a USB drive, it will automatically copy files from /path/to/media/app (Need to incorporate safety-check).
+
+Next, the (most recent) the app.py will be executed as a service. This service will attempt to establish a serial communication with the arduino, a microwebserver for the mobile application. 
+
+The arduino is equipped with a CAN transceiver, and can be set-up for a wide variety of sensor input: both digital and analog (see 
+
 ## Parts
 All components required for the device are listed below
 
