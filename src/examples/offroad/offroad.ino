@@ -13,12 +13,13 @@ Offroad kit for trail feedback
  */
 
 /* --- Libraries --- */
-#include <Canbus.h>
-#include <ArduinoJson.h>
-#include <RunningMedian.h>
-#include <DallasTemperature.h>
-#include <OneWire.h>
+#include "Canbus.h"
+#include "ArduinoJson.h"
+#include "RunningMedian.h"
+#include "DallasTemperature.h"
+#include "OneWire.h"
 #include "stdio.h"
+#include "DHT.h"
 
 /* --- Prototypes --- */
 int checksum(char *buf);
@@ -29,6 +30,7 @@ const unsigned int FAN_RELAY_PIN = 8;
 const unsigned int TEMP_SENSOR_PIN = 5;
 const unsigned int MOISTURE_DO_PIN = 6;
 const unsigned int SENSOR_POWER_PIN = 7; 
+const unsigned int DHTPIN = 2; // what pin we're connected to
 
 // Et cetera
 const unsigned int SAMPLES = 9;
@@ -40,17 +42,20 @@ const unsigned int JSON_LENGTH = 256;
 const unsigned int UPDATE_INTERVAL = 15000;
 const unsigned int DIGITS = 2;
 const unsigned int PRECISION = 2;
+const unsigned int DHTTYPE = DHT22;   // DHT 22  (AM2302)
 
 /* --- Variables --- */
 int chksum;
 bool canbus_status = 0;
 bool pump_off = false;
 bool fan_off = false;
-bool irrigation_required = false;
 bool cooling_required = false;
 
+ 
 int temperature_pv = 0;
 int moisture_pv = 0;
+float internal_humidity = 0;
+float internal_temperature = 0;
 
 // Buffers
 char output_buffer[OUTPUT_LENGTH];
@@ -61,6 +66,7 @@ unsigned char canbus_tx_buffer[CANBUS_LENGTH];  // Buffer to store the incoming 
 // Objects
 OneWire oneWire(TEMP_SENSOR_PIN);
 DallasTemperature ds18b20(&oneWire);
+DHT dht(DHTPIN, DHTTYPE);
 RunningMedian temperature_history = RunningMedian(SAMPLES);
 RunningMedian moisture_history = RunningMedian(SAMPLES);
 
@@ -98,7 +104,9 @@ void loop() {
     temperature_history.add(ds18b20.getTempCByIndex(0));
   }
   temperature_pv = int(temperature_history.getAverage());
-  
+  internal_humidity = dht.readHumidity();
+  internal_temperature = dht.readTemperature();
+
   // Check CANBus
   if (canbus_status) {
 
