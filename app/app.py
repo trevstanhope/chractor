@@ -65,6 +65,12 @@ class App:
             except Exception as e:
                 self.print_error('Gateway failed', e)
 
+            # CLORB
+            try:
+                self.camera = cvme.CLORB()
+            except:
+                self.print_error('CLORB failed', e)
+
             # Logger
             try:
                 self.log = Logger(self.session_key)
@@ -74,23 +80,30 @@ class App:
             # Scheduled Tasks
             try:
                 Monitor(cherrypy.engine, self.listen, frequency=self.config["POLLING_FREQ"]).subscribe()
+                #Monitor(cherrypy.engine, self.capture, frequency=self.config["CAPTURE_FREQ"]).subscribe()
             except Exception as e:
                 raise e
         except Exception as e:
             self.print_error('SYSTEM', e)
-
-    ## Server Handlers
-    ## Print Error
-    ## Render Webapp
+    
+    def print_error(self, subsystem, e):
+        print datetime.strftime(datetime.now(), "[%d/%b/%Y:%H:%H:%S]") + ' ' + subsystem + ' ' + str(e)
+    
+    ## Task Functions
     def listen(self):
         try:
             self.latest_data = self.gateway.poll()
             #self.log.insert_data(self.latest_data)
         except Exception as e:
             print str(e)
-    def print_error(self, subsystem, e):
-        print datetime.strftime(datetime.now(), "[%d/%b/%Y:%H:%H:%S]") + ' ' + subsystem + ' ' + str(e)
 
+    def capture(self):
+        try:
+            self.camera.get_latest()
+        except Exception as e:
+            print str(e)
+
+    ## Server Handlers
     @cherrypy.expose 
     def index(self, index_file="index.html"):
         path = os.path.join(self.config['CHERRYPY_PATH'], index_file)
@@ -113,9 +126,7 @@ class App:
 
 class Gateway:
     def __init__(self, debug=False):
-        """
-        Gateway
-        """
+        """ Gateway """
         self.port = None
         self.debug = debug
 
@@ -144,9 +155,7 @@ class Gateway:
         }
 
     def attach(self, device_classes=['/dev/ttyUSB','/dev/ttyACM'], attempts=5, baud=38400):
-        """
-        Connect to OBD
-        """
+        """  Connect to OBD """
         if self.port is None:
             for i in range(attempts):
                 for dev in device_classes:
@@ -184,9 +193,7 @@ class Gateway:
         print datetime.strftime(datetime.now(), "[%d/%b/%Y:%H:%H:%S]") + ' CANBUS ' + str(msg)
 
     def checksum(self, d, mod=256, decimals=2):
-        """
-        Returns: mod N checksum
-        """
+        """ Returns: mod N checksum """
         chksum = 0
         d = {k.encode('ascii'): v for (k, v) in d.iteritems()}
         for k,v in d.iteritems():
@@ -199,9 +206,7 @@ class Gateway:
         return chksum % mod
 
     def get_device(self):
-        """
-        Returns the device ID
-        """
+        """ Returns the device ID """
         if self.dev_id is not None:
             return self.dev_id
         else:

@@ -10,29 +10,33 @@ import time
 import tools
 
 # DEFAULT CONSTANTS
-DIST_COEF = np.array([-3.20678032e+01, -6.02849983e-03, -3.21918860e-03, -7.12706263e-02, 2.41369510e-07])
-CAM_MATRIX = np.array([[8.84126845e+03, 0.00000000e+00, 3.20129093e+02],
-                       [0.00000000e+00, 8.73308727e+03, 2.40511239e+02],
-                       [0.00000000e+00, 0.00000000e+00, 1.00000000e+00]])
-CAM_WIDTH = 640
-CAM_HEIGHT = 480
-DEG_TOLERANCE = 2 # the tolerance for finding vectors of similar direction (was 2)
-CROP_WIDTH = 480
-CROP_HEIGHT = 480
-FPS = 25
-ZOOM = 0.975
-CLIP_LIMIT = 2.0
-TILE_GRID_SIZE = (8,8)
+
 
 class CLORB:
     def __init__(self,
-                 cam=None,
-                 threshold=250,
-                 dist_coef=None,
-                 cam_matrix=None,
-                 crop=False,
-                 equalize=False,
-                 show_video=False):
+                cam=None,
+                threshold=250,
+                dist_coef=None,
+                cam_matrix=None,
+                crop=False,
+                use_clahe=True,
+                show_video=True,
+                draw_lines=False,
+                neighbors=1,
+                use_crosscheck=True,
+                CROP_WIDTH = 200,
+                CROP_HEIGHT = 200,
+                DIST_COEF = np.array([-3.20678032e+01, -6.02849983e-03, -3.21918860e-03, -7.12706263e-02, 2.41369510e-07]),
+                CAM_MATRIX = np.array([[8.84126845e+03, 0.00000000e+00, 3.20129093e+02],
+                                       [0.00000000e+00, 8.73308727e+03, 2.40511239e+02],
+                                       [0.00000000e+00, 0.00000000e+00, 1.00000000e+00]]),
+                CAM_WIDTH = 160,
+                CAM_HEIGHT = 120,
+                DEG_TOLERANCE = 2, # the tolerance for finding vectors of similar direction (was 2)
+                FPS = 25,
+                ZOOM = 0.975,
+                CLIP_LIMIT = 2.0,
+                TILE_GRID_SIZE = (8,8)):
         
         # Keyword Args
         if cam is None:
@@ -40,19 +44,14 @@ class CLORB:
         else:
             self.cam = cam
         self.show_video = show_video
+        self.draw_lines = draw_lines
         self.crop = crop
-        
-        # Optional Args
-        if cam_matrix:
-            self.CAM_MATRIX = cam_matrix
-        else:
-            self.CAM_MATRIX = CAM_MATRIX
-        if dist_coef:
-            self.DIST_COEF = dist_coef
-        else:
-            self.DIST_COEF = DIST_COEF
-            
+        self.cam.set(3, CAM_WIDTH)
+        self.cam.set(4, CAM_HEIGHT)
+
         # Constants
+        self.CAM_MATRIX = CAM_MATRIX
+        self.DIST_COEF = DIST_COEF
         self.CAM_WIDTH = CAM_WIDTH
         self.CAM_HEIGHT = CAM_HEIGHT
         self.DEG_TOLERANCE = DEG_TOLERANCE
@@ -70,10 +69,13 @@ class CLORB:
                                                            5)
         
         ## Feature-Detector
+        self.use_crosscheck = use_crosscheck
+        self.NEIGHBORS = neighbors
         self.feature_descriptor = cv2.ORB(threshold)
         self.matcher = cv2.BFMatcher(crossCheck=True)
 
         ## Equalization
+        self.use_clahe = use_clahe
         self.clahe = cv2.createCLAHE(clipLimit=self.CLIP_LIMIT, tileGridSize=self.TILE_GRID_SIZE)
             
         ## Empty Variables
@@ -81,22 +83,15 @@ class CLORB:
         self.pts2, self.desc2 = None, None
 
     def find_matches(self):
-        """
-        """
-        s = False
-        while not s:        
-            s, bgr = self.cam.read()
-        self.gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
-        if self.crop:
-            self.gray = self.gray[(CAM_HEIGHT/2-CROP_HEIGHT/2):(CAM_HEIGHT/2+CROP_HEIGHT/2), (CAM_WIDTH/2-CROP_WIDTH/2):(CAM_WIDTH/2+CROP_WIDTH/2)]
-        if self.equalize == CVME_CLAHE:
+        if self.use_clahe:
             self.gray = self.clahe.apply(self.gray)
-        elif self.equalize == CVME_HISTEQ:
-            self.gray = cv2.equalizeHist(self.gray)
         dst = self.undistort(self.gray) # apply undistortion remap
         self.pts2, self.desc2 = self.pts1, self.desc1 # copy previous keypoints
         (self.pts1, self.desc1) = self.feature_descriptor.detectAndCompute(dst, None) # Find key-points between set1 and set2
-        self.matches = self.matcher.knnMatch(self.desc1, self.desc2, k=self.NEIGHBORS) # knn-Match descriptor sets
+        if self.use_crosscheck:
+            self.matches = self.matcher.knnMatch(self.desc1, self.desc2, k=1) # knn-Match descriptor sets
+        else:
+            self.matches = self.matcher.knnMatch(self.desc1, self.desc2, k=self.NEIGHBORS) # knn-Match descriptor sets
         m = len(self.matches)
         return m # returns total matches found
 
@@ -124,8 +119,7 @@ class CLORB:
             v = np.median(v_best) #!TODO: estimation for speed, axiom: middle of pack is most likely
             n = len(v_all)
 
-            # Optional video display
-            if self.show_video:
+            if self.draw_lines:
                 V_r = np.array(np.round(v_best*10), np.uint8)
                 T_r = np.array(np.round(t_best), np.uint8) 
                 mask = np.zeros((200, 360, 3), np.uint8)
@@ -168,3 +162,15 @@ class CLORB:
         t = np.rad2deg(p) # converted to degrees
         v = (3.6 / 1000.0) * (d * float(self.FPS))# convert from mm/s to km/hr
         return (v,t)
+
+    def get_latest(self):
+        """
+        """
+        s = False
+        while not s:
+            s, bgr = self.cam.read()
+        self.gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
+        if self.show_video:
+            cv2.imshow('', self.gray)
+            if cv2.waitKey(5) == 0:
+                pass

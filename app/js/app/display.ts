@@ -140,4 +140,5 @@ module app {
     var element = <HTMLElement>root.querySelector(".value");
     element.innerHTML = value.toString();
   }
+
 }
