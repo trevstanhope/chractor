@@ -1,6 +1,8 @@
 /*
-  moisture_regulator_v1
-*/
+ * temp_monitor
+ * Author: Trevor Stanhope
+ * Description: Advanced temperature monitor module with CAN capabilities
+ */
 
 /* --- Libraries --- */
 #include <Canbus.h>
