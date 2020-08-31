@@ -8,7 +8,7 @@
 <!--	  	<arg name="video_stream_provider" value="rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov" />  -->
 <!--            <arg name="video_stream_provider" value="rtsp://ADMIN:1234@192.168.1.60/gnz_media/main" />  -->
 <!--            <arg name="video_stream_provider" value="rtp://192.168.0.150:8880" /> -->
-                <arg name="video_stream_provider" value="rtp://192.168.40.2:50008" />
+                <arg name="video_stream_provider" value="rtp://192.168.40.181:50008" />
 	  	<!-- set camera fps to (does nothing on a stream)-->
 	  	<!-- <arg name="set_camera_fps" value="30"/> -->
         	<!-- set buffer queue size of frame capturing to -->
