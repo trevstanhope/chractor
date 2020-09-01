@@ -1,5 +1,15 @@
 # Chractor
-Embedded system for Cherokee XJ traction, suspension, and engine monitoring
+Embedded system for Cherokee XJ offroad management
+
+Some features which are possible to implement include:
+- lockable differentials
+- CAN monitoring 
+- roll/pitch
+- axle articulation
+- additional temp sensors
+- e-fan override
+- light control
+- cameras
 
 ## Installation
 Install Debian Linux 8.3.0 (headless) to the device.
@@ -12,17 +22,19 @@ Afterwards, copy-paste the following in the device's terminal:
     cd chractor
     sh install.sh
 
-To rebuild the JS applet, from the app/js/ directory
+To build the JS applet, from the app/js/ directory
     
     npm install -g typescript
     tsc
 
+To build ROS workspace
+
 ## Overview
 At boot, the device will initialize an AP-mode wireless network. Afterwards, bootloader.py will be executed as a daemon process. If it detects a USB drive, it will automatically copy files from /path/to/media/app (Need to incorporate safety-check).
 
-Next, the (most recent) the app.py will be executed as a service. This service will attempt to establish a serial communication with the arduino, a microwebserver for the mobile application. 
+Next, the (most recent) the app.py will be executed as a service. This service will attempt to establish communication with the controller and any CAN/ethernet devices (e.g. camera), and launch microwebserver for the mobile application. 
 
-The arduino is equipped with a CAN transceiver, and can be set-up for a wide variety of sensor input: both digital and analog (see 
+The controller is equipped with a CAN transceiver, and can be set-up for a wide variety of I/O 
 
 ## Parts
 All components required for the device are listed below
