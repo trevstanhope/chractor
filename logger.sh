@@ -17,11 +17,12 @@ source devel/setup.sh
 # NOTE:  opens a second terminal window where  ROS diagnostics messaging is
 # displayed. If any REDTEXT or warnings appear, ensure that all ROS topics
 # have successfully launched before continuing with data collection!
-xterm -e roslaunch video_stream_opencv rtsp_stream.launch &
-xterm -e rosrun image_view image_view image:=/rtsp/image_raw compressed &
+xterm -e roslaunch app rtsp_stream_steering.launch &
+xterm -e roslaunch app rtsp_stream_undercarriage.launch &
+xterm -e rosrun image_view image_view image:=/cam_steering/image_raw compressed &
 
 rosbag record -O data/test.bag \
-	/EMOS/image_raw/compressed \
+	/cam_steering/image_raw/compressed \
 	/can0/received_messages \
 	/can1/received_messages \
 	/rosout \
