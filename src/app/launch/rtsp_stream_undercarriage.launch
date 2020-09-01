@@ -3,7 +3,7 @@
    <!-- launch video stream -->
    <include file="$(find video_stream_opencv)/launch/camera.launch" >
    		<!-- node name and ros graph name -->
-	  	<arg name="camera_name" value="rtsp" />
+	  	<arg name="camera_name" value="cam_undercarriage" />
 	  	<!-- url of the video stream -->
 <!--	  	<arg name="video_stream_provider" value="rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov" />  -->
 <!--            <arg name="video_stream_provider" value="rtsp://ADMIN:1234@192.168.1.60/gnz_media/main" />  -->
