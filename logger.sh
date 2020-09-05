@@ -2,7 +2,7 @@
 
 ## Init Devices
 ## NOTE Comment if you do not have these set to automatically initialize on boot
-ethtool -G enp4s0 rx 2048
+#ethtool -G enp4s0 rx 2048
 #modprobe peak_usb
 #ip link set can0 up type can bitrate 250000
 #ifconfig can0 up
@@ -20,9 +20,11 @@ source devel/setup.sh
 xterm -e roslaunch app rtsp_stream_steering.launch &
 xterm -e roslaunch app rtsp_stream_undercarriage.launch &
 xterm -e rosrun image_view image_view image:=/cam_steering/image_raw compressed &
+xterm -e rosrun image_view image_view image:=/cam_undercarriage/image_raw compressed &
 
 rosbag record -O data/test.bag \
 	/cam_steering/image_raw/compressed \
+	/cam_undercarriage/image_raw/compressed \
 	/can0/received_messages \
 	/can1/received_messages \
 	/rosout \
