@@ -18,11 +18,12 @@ app = Flask(__name__)
 # initialize the video stream and allow the camera sensor to
 # warmup
 #vs = VideoStream(usePiCamera=1).start()
-vs = VideoStream(src=0).start()
+vs = VideoStream("rtp://192.168.40.181:50008").start()
 time.sleep(2.0)
 
 @app.route("/")
 def index():
+
 	# return the rendered template
 	return render_template("index.html")
 
