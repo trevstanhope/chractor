@@ -11,9 +11,10 @@
   </include>
  -->
 
-  <include file="$(find video_stream_opencv)/launch/rtsp_stream_steering.launch">
+  <include file="$(find app)/launch/rtsp_stream_steering.launch">
   </include>
-
+  <include file="$(find app)/launch/rtsp_stream_undercarriage.launch">
+  </include>
 
 <!--
   <node name="socketcan_bridge_can0" pkg="socketcan_bridge" type="socketcan_bridge_node" respawn="false" output="screen" ns="can0">
