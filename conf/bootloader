@@ -1,4 +1,8 @@
 #!/bin/sh
+# 'Bootloader' init.d script
+# Opens specified daemon python script on boot
+# Support start|stop|reset commands
+
 
 ### BEGIN INIT INFO
 # Provides:          myservice
