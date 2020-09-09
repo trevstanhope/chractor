@@ -91,6 +91,7 @@ def generate():
 			# ensure the frame was successfully encoded
 			if not flag:
 				continue
+		
 		# yield the output frame in the byte format
 		yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + bytearray(encodedImage_combo) + b'\r\n')
 
