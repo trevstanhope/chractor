@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>jca_j1939_to_ros</name>
+  <name>app</name>
   <version>0.0.0</version>
-  <description>The jca_j1939_to_ros package</description>
+  <description>The chractor-app package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
