@@ -32,14 +32,21 @@ Get the repository:
     git clone https://github.com/trevstanhope/chractor
     cd chractor
 
-To get OpenCV:
-
-	sudo apt-get install build-essential cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
+To get OpenCV (from source):
+	sudo apt-get update
+	sudo apt-get upgrade
+	sudo apt-get install python3-numpy
+	sudo apt-get install build-essential cmake git pkg-config
+	sudo apt-get install libjpeg8-dev libtiff4-dev libjasper-dev libpng12-dev
+	sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev libv4l-dev
+	sudo apt-get install libatlas-base-dev gfortran
 	sudo apt-get install python3.5-dev
-	git clone https://github.com/Itseez/opencv.git
+	git clone https://github.com/opencv/opencv.git
+	git checkout 3.0.0
 	mkdir opencv/build
 	cd opencv/build
 	cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local ..
+    cmake -D CMAKE_BUILD_TYPE=Release -D WITH_QT=OFF -D WITH_GTK=OFF -D BUILD_NEW_PYTHON_SUPPORT=ON -D BUILD_opencv_python3=ON -D HAVE_opencv_python3=ON -D PYTHON_DEFAULT_EXECUTABLE=/usr/bin/python3.5 ..
 	make -j $(nproc --all)
 	make install
 
@@ -55,6 +62,10 @@ If using the NodeJS application, in order to build the JS applet, from the src/a
 
 To get Python:
 
+	sudo apt-get install python3-pip
+	pip install numpy
+	pip install opencv-contrib-python
+	pip install imutils
 	pip install -r requirements.txt
 
 ## Overview

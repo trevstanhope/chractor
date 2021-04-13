@@ -12,6 +12,7 @@ In Development
 
 __author__      = "Trevor Stanhope"
 __copyright__   = "MIT"
+__date__ = "2021-04-11"
 
 # import the necessary packages
 from imutils.video import VideoStream
@@ -55,7 +56,7 @@ app = Flask(__name__) # initialize a flask object
 # initialize the video stream and allow the camera sensor to  warmup
 log.info("initiating streams ...")
 try:
-	vs_steering = VideoStream("rtp://192.168.40.181:50008").start()
+	vs_steering = VideoStream("rtp://192.168.40.181:50008").start() #!TODO: Create centralized config for this (SHARED WITH LAUNCH XMLS)
 	log.info("started steering stream")
 except:
 	log.warning("failed to start steering stream")
@@ -63,7 +64,7 @@ except:
 
 # initialize the video stream and allow the camera sensor to  warmup
 try:
-	vs_underbody = VideoStream("rtp://192.168.40.91:50004").start()
+	vs_underbody = VideoStream("rtp://192.168.40.40:50004").start() #!TODO: Create centralized config for this (SHARED WITH LAUNCH XMLS)
 	log.info("started underbody stream")
 except:
 	log.warning("failed to start underbody stream")
