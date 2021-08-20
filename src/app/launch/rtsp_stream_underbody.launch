@@ -5,11 +5,11 @@
    		<!-- node name and ros graph name -->
 	  	<arg name="camera_name" value="cam_underbody" />
 	  	<!-- url of the video stream -->
-        <arg name="video_stream_provider" value="rtp://192.168.40.40:50004" />
+        <arg name="video_stream_provider" value="rtp://192.168.40.90:50004" />
 	  	<!-- set camera fps to (does nothing on a stream)-->
 	  	<!-- <arg name="set_camera_fps" value="30"/> -->
-        <!-- set buffer queue size of frame capturing to -->
-        <arg name="buffer_queue_size" value="10" />
+        <!-- set buffer queue size of frame capturing to, default is 10 -->
+        <arg name="buffer_queue_size" value="100" />
 	  	<!-- throttling the querying of frames to -->
 	  	<arg name="fps" value="2" />
 	  	<!-- setting frame_id -->
