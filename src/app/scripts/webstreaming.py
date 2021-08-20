@@ -57,6 +57,8 @@ ANGLE_GREEN = 0
 ANGLE_YELLOW = 15
 ANGLE_ORANGE = 30
 ANGLE_RED = 45
+STEERING_RTP_ADDR = "rtp://192.168.40.181:50008"
+UNDERBODY_RTP_ADDR = "rtp://192.168.40.40:50004"
 
 # Globals
 logging.basicConfig(level=logging.DEBUG, filename="/tmp/chractor.log")
@@ -88,7 +90,8 @@ class j1939_msg:
 # initialize the video stream and allow the camera sensor to  warmup
 log.info("initiating streams ...")
 try:
-	cam_steering = VideoStream("rtp://192.168.40.181:50008").start() #!TODO: Create centralized config for this (SHARED WITH LAUNCH XMLS)
+	cam_steering = VideoStream(0).start() #!TODO: Create centralized config for this (SHARED WITH LAUNCH XMLS)
+	#cam_steering = VideoStream(STEERING_RTP_ADDR).start() #!TODO: Create centralized config for this (SHARED WITH LAUNCH XMLS)
 	log.info("started steering stream ...")
 except:
 	log.warning("failed to start steering stream ...")
@@ -96,7 +99,7 @@ except:
 
 # initialize the video stream and allow the camera sensor to  warmup
 try:
-	cam_underbody = VideoStream("rtp://192.168.40.40:50004").start() #!TODO: Create centralized config for this (SHARED WITH LAUNCH XMLS)
+	cam_underbody = VideoStream(UNDERBODY_RTP_ADDR).start() #!TODO: Create centralized config for this (SHARED WITH LAUNCH XMLS)
 	log.info("started underbody stream ...")
 except:
 	log.warning("failed to start underbody stream ...")
@@ -200,22 +203,22 @@ def capture_j1939():
 				message = socket.recv_multipart()
 				message_bytes.extend(message[1])
 				pgn = (message_bytes[1] << 8 | message_bytes[2]) & 0xffff
-				log.info("%0.4X" %  pgn in J1939_PGN_LIST)
+				#log.info("%0.4X" %  pgn in J1939_PGN_LIST)
 				if "%0.4X" %  pgn in J1939_PGN_LIST:
 					j1939_msg.id = list(message_bytes[0:4])
 					j1939_msg.data = list(message_bytes[4:])
 					if pgn == MTLT305D_ACCEL_PGN: MTLT305D_accel_handler(j1939_msg)
 					if pgn == MTLT305D_ANGLES_PGN: MTLT305D_angles_handler(j1939_msg)
 					if pgn == MTLT305D_ANGLERATE_PGN: MTLT305D_anglerate_handler(j1939_msg)
-		else:
-			message_bytes = bytearray([1,240,41,80,random.randint(80,170),random.randint(80,170),random.randint(80,170),random.randint(80,170),random.randint(80,170),random.randint(80,170),0,0])
-			pgn = (message_bytes[1] << 8 | message_bytes[2]) & 0xffff
-			if pgn in J1939_PGN_LIST:
-				j1939_msg.id = list(message_bytes[0:4])
-				j1939_msg.data = list(message_bytes[4:])
-				(dx, dy, dz) = MTLT305D_accel_handler(j1939_msg)
-				(p, r) = MTLT305D_angles_handler(j1939_msg)
-				(dp, dr, dt) = MTLT305D_anglerate_handler(j1939_msg)
+		#else:
+		#	message_bytes = bytearray([1,240,41,80,random.randint(80,170),random.randint(80,170),random.randint(80,170),random.randint(80,170),random.randint(80,170),random.randint(80,170),0,0])
+		#	pgn = (message_bytes[1] << 8 | message_bytes[2]) & 0xffff
+		#	if pgn in J1939_PGN_LIST:
+		#		j1939_msg.id = list(message_bytes[0:4])
+		#		j1939_msg.data = list(message_bytes[4:])
+		#		MTLT305D_accel_handler(j1939_msg)
+		#		MTLT305D_angles_handler(j1939_msg)
+		#		MTLT305D_anglerate_handler(j1939_msg)
 
 def capture_streams():
 	# capture RTP video streams
@@ -236,6 +239,15 @@ def capture_streams():
 					outputFrame_steering = frame_steering.copy()
 			else:
 				outputFrame_steering = np.zeros((VIDEO_HEIGHT,VIDEO_WIDTH,3), np.uint8)
+				cv2.putText(
+					 outputFrame_steering, #numpy array on which text is written
+					 str("NO CAM"), #text
+					 (int(VIDEO_WIDTH/3), int(VIDEO_HEIGHT/2)), # position at which writing has to start
+					 cv2.FONT_HERSHEY_SIMPLEX, #font family
+					 1, #font size
+					 (255,255,255), #font color
+					 3 #font stroke
+				)
 		
 		# read the next frame from the video stream, resize it,
 		if cam_underbody is not None: 
@@ -245,7 +257,16 @@ def capture_streams():
 				with lock:
 					outputFrame_underbody = frame_underbody.copy()
 			else:
-				 outputFrame_underbody = np.zeros((VIDEO_HEIGHT,VIDEO_WIDTH,3), np.uint8)
+				outputFrame_underbody = np.zeros((VIDEO_HEIGHT,VIDEO_WIDTH,3), np.uint8)
+				cv2.putText(
+					 outputFrame_underbody, #numpy array on which text is written
+					 str("NO CAM"), #text
+					 (int(VIDEO_WIDTH/3),int(VIDEO_HEIGHT/2)), # position at which writing has to start
+					 cv2.FONT_HERSHEY_SIMPLEX, #font family
+					 1, #font size
+					 (255,255,255), #font color
+					 3 #font stroke
+				)
 
 def color_picker(val):
 	if abs(val) < ANGLE_YELLOW: return (0, 255, 0)
@@ -272,7 +293,7 @@ def generate_display():
 			color = color_picker(roll)
 			cv2.putText(
 				 outputFrame_combo, #numpy array on which text is written
-				 str("roll: %+2.1f" % roll), #text
+				 str("roll: %+05.1f" % roll), #text
 				 (10,30), # position at which writing has to start
 				 cv2.FONT_HERSHEY_SIMPLEX, #font family
 				 1, #font size
@@ -282,7 +303,7 @@ def generate_display():
 			color = color_picker(pitch)
 			cv2.putText(
 				 outputFrame_combo, #numpy array on which text is written
-				 str("pitch: %+2.1f" % pitch), #text
+				 str("pitch: %+05.1f" % pitch), #text
 				 (430,30), # position at which writing has to start
 				 cv2.FONT_HERSHEY_SIMPLEX, #font family
 				 1, #font size
