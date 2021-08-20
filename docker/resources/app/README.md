@@ -1,6 +1,6 @@
 # Chractor App
 
-This is the web streaming app package. It supports 2x RTP video streams, 1x CAN-based 3-axis gyro/accelerometer, and 4x analog inputs/outputs (not yet configured).
+This is the web streaming app package: supports 2x RTP video streams, 1x CAN-based 3-axis gyro/accelerometer, and 4x analog inputs/outputs (not yet configured).
 
 ### Prerequisites
 
