@@ -9,6 +9,8 @@ RUN cd ~ && mkdir -p chractor/src && cd chractor/src && cp -r /tmp/app/ . && pwd
 # COPY ./resources/opencvinfo.cc /root/
 # RUN cd /root/ && g++ opencvinfo.cc -l opencv_core -o opencvinfo
 COPY ./resources/runserver.sh /
+COPY ./resources/install.sh /
 RUN chmod 755 /runserver.sh
+RUN chmod 755 /install.sh
 ENTRYPOINT "/runserver.sh"
 

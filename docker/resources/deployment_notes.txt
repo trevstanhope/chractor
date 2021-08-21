@@ -1,3 +1,7 @@
 Docker Run Command
 ----------------------------
-docker run -it --privileged -v /dev/:/dev --net=host chractor /bin/bash
+docker run -it --privileged -v /dev/:/dev --net=host chractor:latest /bin/bash
+
+Docker Install Command
+----------------------------
+docker run -it --privileged -v /dev/:/dev --net=host --entrypoint "/install.sh" chractor:latest 

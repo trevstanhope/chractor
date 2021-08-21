@@ -88,11 +88,10 @@ class j1939_msg:
     id = bytearray(4)
 
 # initialize the video stream and allow the camera sensor to  warmup
-log.info("initiating streams ...")
+log.info("initiating video streams ...")
 try:
-	cam_steering = VideoStream(0).start() #!TODO: Create centralized config for this (SHARED WITH LAUNCH XMLS)
-	#cam_steering = VideoStream(STEERING_RTP_ADDR).start() #!TODO: Create centralized config for this (SHARED WITH LAUNCH XMLS)
-	log.info("started steering stream ...")
+	cam_steering = VideoStream(STEERING_RTP_ADDR).start() #!TODO: Create centralized config for this (SHARED WITH LAUNCH XMLS)
+	log.info("started steering video stream ...")
 except:
 	log.warning("failed to start steering stream ...")
 	cam_steering = None
@@ -100,7 +99,7 @@ except:
 # initialize the video stream and allow the camera sensor to  warmup
 try:
 	cam_underbody = VideoStream(UNDERBODY_RTP_ADDR).start() #!TODO: Create centralized config for this (SHARED WITH LAUNCH XMLS)
-	log.info("started underbody stream ...")
+	log.info("started underbody video stream ...")
 except:
 	log.warning("failed to start underbody stream ...")
 	cam_underbody = None
@@ -422,7 +421,7 @@ if __name__ == '__main__':
 
 	# start the flask app
 	#app.run(host=args["ip"], port=args["port"], debug=DEBUG, threaded=True, use_reloader=False)
-	log.info("initiating web app ...")
+	log.info("initiating Flask web app ...")
 	app.run(host=HOST, port=PORT, debug=DEBUG, threaded=True, use_reloader=False)
 
 # release the video stream pointer
