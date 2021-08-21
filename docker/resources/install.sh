@@ -8,7 +8,8 @@ sudo apt-get install cmake
 sudo apt-get install gcc g++
 sudo apt-get install git
 git clone https://github.com/opencv/opencv.git
-cd opencv && mkdir build && cd build && cmake ..
+cd opencv && mkdir build && cd build
+cmake -D CMAKE_BUILD_TYPE=RELEASE -D BUILD_EXAMPLES=OFF -D BUILD_opencv_apps=OFF -D BUILD_DOCS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_TESTS=OFF ..
 make
 sudo make install
 
