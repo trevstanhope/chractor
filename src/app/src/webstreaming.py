@@ -14,7 +14,7 @@ __author__      = "Trevor Stanhope"
 __copyright__   = "MIT"
 __date__ = "2021-08-19"
 
-# import the necessary packages
+# Import necessary packages
 from imutils.video import VideoStream
 from flask import Response
 from flask import Flask
@@ -33,7 +33,7 @@ import sys
 import zmq
 import random
 
-# constants
+## Constants
 DEBUG = False
 VIDEO_HEIGHT = 240
 VIDEO_WIDTH = 320
@@ -43,12 +43,6 @@ FRAMERATE = 5
 BOOT_DELAY = 2.0
 J1939_ZMQ_RECV_SOCKET = 'tcp://127.0.0.1:5678'
 J1939_ZMQ_SEND_SOCKET = 'tcp://127.0.0.1:5555'
-J1939_PRIORITY = 0x18
-J1939_PGN_MSB = 0xEF
-J1939_PGN_LSB = 0x44
-J1939_NODE_DEFAULT = 'J1939_raw'
-J1939_TOPIC_DEFAULT = 'J1939_raw'
-J1939_PGN_LIST_DEFAULT = [format(i, '04X') for i in range(0, 0x10000)]
 MTLT305D_ANGLES_PGN = 0xF029
 MTLT305D_ACCEL_PGN = 0xF02D
 MTLT305D_ANGLERATE_PGN = 0xF02A
@@ -60,7 +54,7 @@ ANGLE_RED = 45
 STEERING_RTP_ADDR = "rtp://192.168.40.181:50008"
 UNDERBODY_RTP_ADDR = "rtp://192.168.40.40:50004"
 
-# Globals
+## Globals
 logging.basicConfig(level=logging.DEBUG, filename="/tmp/chractor.log")
 log = logging.getLogger(__name__)
 consolehandler = logging.StreamHandler(sys.stdout)
@@ -83,34 +77,17 @@ v1 = 0
 v2 = 0
 v3 = 0
 
+## Classes
 class j1939_msg:
     data = bytearray(8)
     id = bytearray(4)
 
-# initialize the video stream and allow the camera sensor to  warmup
-log.info("initiating video streams ...")
-try:
-	cam_steering = VideoStream(STEERING_RTP_ADDR).start() #!TODO: Create centralized config for this (SHARED WITH LAUNCH XMLS)
-	log.info("started steering video stream ...")
-except:
-	log.warning("failed to start steering stream ...")
-	cam_steering = None
-
-# initialize the video stream and allow the camera sensor to  warmup
-try:
-	cam_underbody = VideoStream(UNDERBODY_RTP_ADDR).start() #!TODO: Create centralized config for this (SHARED WITH LAUNCH XMLS)
-	log.info("started underbody video stream ...")
-except:
-	log.warning("failed to start underbody stream ...")
-	cam_underbody = None
-time.sleep(BOOT_DELAY)
-log.info("boot complete ...")
-
+## Functions
 def clamp(n, minn, maxn):
     return max(min(maxn, n), minn)
 
 def MTLT305D_accel_handler(msg):
-	global accelx, accely, accelz
+
 	id = 0xCF02D80
 	pgn = 0xF02D
 	sa = 0x80
@@ -135,7 +112,7 @@ def MTLT305D_accel_handler(msg):
 	return accelx, accely, accelz
 
 def MTLT305D_angles_handler(msg):
-	global pitch, roll
+
 	pgn = 0xF029
 	sa = 0x80
 	da = 0xFF
@@ -158,7 +135,7 @@ def MTLT305D_angles_handler(msg):
 	return pitch, roll
 
 def MTLT305D_anglerate_handler(msg):
-	global gyrox, gyroy, gyroz
+
 	pgn = 0xF029
 	sa = 0x80
 	da = 0xFF
@@ -182,19 +159,41 @@ def MTLT305D_anglerate_handler(msg):
 	return gyrox, gyroy, gyroz
 
 def capture_j1939():
+	# Socket to talk to J1939 Stack
+	global gyrox, gyroy, gyroz
+	global pitch, roll
+	global accelx, accely, accelz
 
-    # Socket to talk to server
-	log.info("initiating ZMQ socket ...")
+    # Socket to Receive
+	log.info("initiating ZMQ RECV socket ...")
 	context = zmq.Context()
-	socket = context.socket(zmq.SUB)
-	socket.connect(J1939_ZMQ_RECV_SOCKET)
-	socket.setsockopt_string(zmq.SUBSCRIBE, '')
+	socket_recv = context.socket(zmq.SUB)
+	socket_recv.connect(J1939_ZMQ_RECV_SOCKET)
+	socket_recv.setsockopt_string(zmq.SUBSCRIBE, '')
 	poller = zmq.Poller()
-	poller.register(socket, zmq.POLLIN)
-	log.info("ZMQ socket open ...")
+	poller.register(socket_recv, zmq.POLLIN)
+	log.info("ZMQ RECV socket open ...")
+	
+	# Socket to Send
+#	socket_send = context.socket(zmq.PUSH)
+#	socket_send.connect(J1939_ZMQ_SEND_SOCKET)
+#	log.info("ZMQ SEND socket open ...")
+#	data = bytearray([])
+#	data.append(0x18)
+#	data.append(0xEF)
+#	data.append(0x5A)
+#	data.append(0x44)
+#	data.append(0x11)
+#	data.append(0x22)
+#	data.append(0x33)
+#	data.append(0x44)
+#	data.append(0x55)
+#	data.append(0x66)
+#	data.append(0x77)
+#	data.append(0x88)
+#   socket_send.send(data)
 
 	while not False:
-		time.sleep(0.05)
 		message_bytes = bytearray()
 		socks = dict(poller.poll(250)) # waits 250ms before timing out
 		if socks:
@@ -202,22 +201,18 @@ def capture_j1939():
 				message = socket.recv_multipart()
 				message_bytes.extend(message[1])
 				pgn = (message_bytes[1] << 8 | message_bytes[2]) & 0xffff
-				#log.info("%0.4X" %  pgn in J1939_PGN_LIST)
-				if "%0.4X" %  pgn in J1939_PGN_LIST:
+				if pgn in J1939_PGN_LIST:
 					j1939_msg.id = list(message_bytes[0:4])
 					j1939_msg.data = list(message_bytes[4:])
-					if pgn == MTLT305D_ACCEL_PGN: MTLT305D_accel_handler(j1939_msg)
-					if pgn == MTLT305D_ANGLES_PGN: MTLT305D_angles_handler(j1939_msg)
-					if pgn == MTLT305D_ANGLERATE_PGN: MTLT305D_anglerate_handler(j1939_msg)
-		#else:
-		#	message_bytes = bytearray([1,240,41,80,random.randint(80,170),random.randint(80,170),random.randint(80,170),random.randint(80,170),random.randint(80,170),random.randint(80,170),0,0])
-		#	pgn = (message_bytes[1] << 8 | message_bytes[2]) & 0xffff
-		#	if pgn in J1939_PGN_LIST:
-		#		j1939_msg.id = list(message_bytes[0:4])
-		#		j1939_msg.data = list(message_bytes[4:])
-		#		MTLT305D_accel_handler(j1939_msg)
-		#		MTLT305D_angles_handler(j1939_msg)
-		#		MTLT305D_anglerate_handler(j1939_msg)
+					if pgn == MTLT305D_ACCEL_PGN:
+						accelx, accely, accelz = MTLT305D_accel_handler(j1939_msg)
+					if pgn == MTLT305D_ANGLES_PGN:
+						pitch, roll = MTLT305D_angles_handler(j1939_msg)
+					if pgn == MTLT305D_ANGLERATE_PGN:
+						gyrox, gyroy, gyroz = MTLT305D_anglerate_handler(j1939_msg)
+
+	socket_recv.close()
+	#socket_send.close()
 
 def capture_streams():
 	# capture RTP video streams
@@ -318,47 +313,17 @@ def generate_display():
 		# yield the output frame in the byte format
 		yield(b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + bytearray(encodedImage_combo) + b'\r\n')
 
-def parse_packet(rawdata):
-	# parse UDP CAN packet
-
-	version = (rawdata[0] & 0xC0) >> 6
-	log.debug("RTP Version %d" % version)
-	cc = rawdata[0] & 0x0F
-	pktdata = rawdata[(12 + 4 * cc):]
-	return pktdata
-
-def capture_can(host='0.0.0.0', port=51060):
-	# UDP server to capture UDP CAN packets
-
-    global log
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.settimeout(2)
-
-    log.info("Listening on udp %s:%s" % (host, port))
-
-    s.bind((host, port))
-    while True:
-        try:
-            (data, addr) = s.recvfrom(128 * 1024)
-            if data:
-                b = bytearray()
-                b.extend(data)
-               	parse_packet(b)
-        except socket.timeout:
-            continue
-
-
-
 def read_volts(id):
 	# read volts from device
-    devname = "/dev/hbinvolt{}".format(id)
-    try:
-        infile = os.open(devname, os.O_RDONLY)
-        v = os.read(infile, 16)
-        os.close(infile)
-    except OSError:
-        v = "0.001"
+	devname = "/dev/hbinvolt{}".format(id)
+	try:
+		infile = os.open(devname, os.O_RDONLY)
+		v = float(os.read(infile, 16))
+		os.close(infile)
+	except OSError:
+		log.info("couldn't read ADIO device")
+		v = 0.000
+	return v
 
 def capture_adio():
 	global v0, v1, v2, v3
@@ -368,8 +333,9 @@ def capture_adio():
 			v1 = read_volts(1)
 			v2 = read_volts(2)
 			v3 = read_volts(3)
+			log.info("%f, %f, %f, %f" % (v0, v1, v2, v3))
 		except Exception as E:
-			print("err")
+			log.info(str(E))
  
 ## Flask Handlers
 @app.route("/")
@@ -384,24 +350,30 @@ def video_feed():
 	# type (mime type)
 	return Response(generate_display(), mimetype = "multipart/x-mixed-replace; boundary=frame")
 
-# check to see if this is the main thread of execution
-if __name__ == '__main__':
+## Main
+# initialize the video stream and allow the camera sensor to  warmup
+log.info("initiating video streams ...")
+try:
+	cam_steering = VideoStream(STEERING_RTP_ADDR).start() #!TODO: Create centralized config for this (SHARED WITH LAUNCH XMLS)
+	log.info("started steering video stream ...")
+except:
+	log.warning("failed to start steering stream ...")
+	cam_steering = None
 
-	# construct the argument parser and parse command line arguments
-	#ap = argparse.ArgumentParser()
-	#ap.add_argument("-i", "--ip", type=str, required=True, help="ip address of the device")
-	#ap.add_argument("-o", "--port", type=int, required=True, help="ephemeral port number of the server (1024 to 65535)")
-	#ap.add_argument("-f", "--frame-count", type=int, default=32, help="# of frames used to construct the background model")
-	#args = vars(ap.parse_args())
-	
-	# Socket to talk to server
-	#context = zmq.Context()
-	#log.info("connecting to the hummingbird ...")
-	#zs = context.socket(zmq.PUSH)
-	#zs.connect(yaml_import['J1939_ZMQ_SEND_SOCKET'])
+# initialize the video stream and allow the camera sensor to  warmup
+try:
+	cam_underbody = VideoStream(UNDERBODY_RTP_ADDR).start() #!TODO: Create centralized config for this (SHARED WITH LAUNCH XMLS)
+	log.info("started underbody video stream ...")
+except:
+	log.warning("failed to start underbody stream ...")
+	cam_underbody = None
+time.sleep(BOOT_DELAY)
+log.info("boot complete ...")
+
+if __name__ == '__main__': # check to see if this is the main thread of execution
 
 	# start a thread that will perform stream capture
-	#t = threading.Thread(target=capture_streams, args=(args["frame_count"],))
+	t = threading.Thread(target=capture_streams, args=(args["frame_count"],))
 	log.info("initiating RTP videostreams thread ...")
 	t_streams = threading.Thread(target=capture_streams)
 	t_streams.daemon = True
@@ -420,9 +392,11 @@ if __name__ == '__main__':
 	t_capture_adio.start()
 
 	# start the flask app
-	#app.run(host=args["ip"], port=args["port"], debug=DEBUG, threaded=True, use_reloader=False)
 	log.info("initiating Flask web app ...")
 	app.run(host=HOST, port=PORT, debug=DEBUG, threaded=True, use_reloader=False)
+
+## Shutdown
+log.info("shutting down ...")
 
 # release the video stream pointer
 if cam_steering is not None:
@@ -433,3 +407,6 @@ if cam_steering is not None:
 if cam_underbody is not None:
 	log.info("releasing underbody stream ...")
 	cam_underbody.stop()
+
+# release the zmq socket
+if  is not None:
